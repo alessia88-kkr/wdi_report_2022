@@ -1,0 +1,79 @@
+---
+title: "World Development Indicators (2022) Analysis"
+author: "AC"
+format: revealjs
+editor: visual
+theme: moon
+transition: slide
+---
+
+### World Development Indicators Analysis
+
+Course: QTM 350
+
+*Date: October 6, 2025*
+
+## Intro
+
+-   Analysis of 2022 World Development Indicators
+
+-   Indicators: Education expenditure, health expenditure, life expectancy
+
+## Key Findings on Education Expenditure
+
+-   Range: 0.3% to 16.58% of GDP
+
+-   Top 10: Kiribati leads, followed by small/developing nations
+
+```{r}
+#| label: fig-edu-top10-slide
+#| echo: false
+#| fig-cap: "Top 10 countries by education expenditure as a share of GDP (2022). Source: World Development Indicators (wdi.csv)."
+#| fig-width: 8
+#| fig-height: 5
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(gt)
+wdi <- read_csv("wdi.csv", na = "")
+
+
+top10_edu <- wdi %>%
+  filter(!is.na(education_expenditure_gdp_share)) %>%
+  slice_max(order_by = education_expenditure_gdp_share, n = 10) %>%
+  arrange(education_expenditure_gdp_share)
+
+ggplot(top10_edu,
+       aes(x = reorder(country, education_expenditure_gdp_share),
+           y = education_expenditure_gdp_share)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Education Expenditure (% of GDP), Top 10 Countries (2022)",
+       x = NULL,
+       y = "Education expenditure (% of GDP)")
+```
+
+## Health Expenditure vs. Life Expectancy
+
+-   Range: Health expenditure 1.2% to 16.57% (U.S. outlier), Life expectancy 53.00 to 85.38 years.
+
+    ```{r}
+    #| label: fig-health-life-slide
+    #| echo: false
+    #| fig-cap: "Health expenditure (% of GDP) vs. life expectancy (years), 2022. Line shows linear fit. Source: World Development Indicators (wdi.csv)."
+    #| fig-width: 7
+    #| fig-height: 5
+    ggplot(wdi, aes(x = health_expenditure_gdp_share, y = life_expectancy)) +
+      geom_point(na.rm = TRUE) +
+      geom_smooth(method = "lm", se = FALSE, na.rm = TRUE) +
+      labs(title = "Does Higher Health Spending Share Relate to Longevity?",
+           x = "Health expenditure (% of GDP)",
+           y = "Life expectancy (years)")
+    ```
+
+## Summary
+
+Education spending varies widely, with developing nations leading; health spending shows a weak link to life expectancy.
+
+Future: Analyze regional differences and health system efficiency.\

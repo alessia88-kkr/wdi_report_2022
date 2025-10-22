@@ -1,0 +1,184 @@
+---
+title: "World Development Indicators (2022) Report"
+author: "AC"
+date: "October 6, 2025"
+format:
+  html:
+    toc: true
+    number-sections: true
+  pdf:
+    toc: true
+    number-sections: true
+bibliography: references.bib
+csl: apa.csl
+---
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(gt)
+wdi <- read_csv("wdi.csv", na = "")
+```
+
+## Introduction
+
+The *World Development Indicators* (WDI) dataset, compiled by the World Bank, provides a comprehensive collection of internationally comparable statistics about global development [@worldbank2022]. It covers a wide range of dimensions, including economic performance, education, health, and social progress, enabling researchers and policymakers to assess development outcomes across countries and over time. This report focuses on a 2022 cross-sectional sample of the WDI data containing 14 key socioeconomic variables for countries worldwide.
+
+Among these variables, particular attention is given to three core indicators that capture critical aspects of human capital and development:
+
+1.  **Education expenditure (% of GDP)** : representing the share of national output devoted to education sector.
+
+2.  **Health expenditure (% of GDP)** : indicating the proportion of GDP spent on healthcare sector.
+
+3.  **Life expectancy (in years)** : measuring the average number of years a newborn is expected to live under current mortality conditions.
+
+These indicators are often interlinked: education investment can influence health awareness and employment opportunities, while health spending directly impacts life expectancy through improvements in healthcare quality and accessibility. Analyzing the relationship among these variables provides insights into how nations allocate resources to human development and how these investments translate into population outcomes. We hope that this analysis could highlight disparities, potential correlations, and data gaps that may inform future studies on the effectiveness of social spending in enhancing human welfare.
+
+## Exploratory Data Analysis
+
+### Education Expenditure as a Share of GDP
+
+```{r}
+edu_exp_summary <- summary(wdi$education_expenditure_gdp_share, na.rm = TRUE)
+missing_edu <- sum(is.na(wdi$education_expenditure_gdp_share))
+
+cat("**Summary Statistics for Education Expenditure (% of GDP):**\n")
+print(edu_exp_summary)
+cat("\n**Missing Values:**", missing_edu, "countries\n")
+
+```
+
+-   **Analysis**: The distribution appears skewed, with most countries spending between 2-5% of GDP on education, as indicated by the interquartile range (2.898% to 5.156%) and the median of 3.887%. The mean (4.226%) is slightly higher than the median, suggesting the presence of outliers, with Namibia at 9.678% and a maximum of 16.582% driving the upper tail. The variability highlights differing national priorities in educational investment. The 112 missing values (over a third of the dataset) limit the analysis, potentially skewing the overall picture. Countries with higher expenditures, like Namibia, may prioritize education to boost literacy and economic growth, while those with lower spending might face resource constraints or different policy focuses.
+
+### Health Expenditure as a Share of GDP
+
+```{r}
+health_exp_summary <- summary(wdi$health_expenditure_gdp_share, na.rm = TRUE)
+missing_health <- sum(is.na(wdi$health_expenditure_gdp_share))
+
+cat("**Summary Statistics for Health Expenditure (% of GDP):**\n")
+print(health_exp_summary)
+cat("\n**Missing Values:**", missing_health, "countries\n")
+```
+
+-   **Analysis**: Health expenditure varies widely across countries, with the U.S. at 16.571% standing out as a significant outlier, indicating a substantial investment compared to others. The mean (9.044%) is slightly higher than the median (8.925%), suggesting a right-skewed distribution possibly influenced by high-spending outliers like the U.S. The median suggests that most countries allocate around 8-9% of GDP to health, but the presence of 197 missing values (a large portion of the dataset) limits the comprehensiveness of this analysis. Higher spending might correlate with better healthcare infrastructure, as seen in countries with advanced medical systems, though the missing data obscures a complete picture. More research should be conducted in the future.
+
+### Life Expectancy
+
+```{r}
+life_exp_summary <- summary(wdi$life_expectancy, na.rm = TRUE)
+missing_life <- sum(is.na(wdi$life_expectancy))
+
+cat("**Summary Statistics for Life Expectancy (Years):**\n")
+print(life_exp_summary)
+cat("\n**Missing Values:**", missing_life, "countries\n")
+```
+
+-   **Analysis**: Life expectancy ranges widely, from 53.00 years (likely reflecting countries with significant health or economic challenges) to 85.38 years (indicative of high-living-standard nations). The median (73.51 years) is close to the mean (72.42 years), suggesting a relatively symmetric distribution, though the lower minimum pulls the mean slightly down. The interquartile range (66.78 to 78.47 years) shows that 50% of countries have life expectancies between these values, reflecting moderate global health outcomes. With only 8 missing values, this indicator is more reliable than health expenditure data. The variation suggests that factors beyond health expenditure, such as nutrition, sanitation, and education, also play critical roles in determining life expectancy.
+
+### Visualizations
+
+#### Bar chart (Top 10 by education spending share)
+
+```{r}
+#| label: fig-edu-top10
+#| echo: false
+#| fig-cap: "Top 10 countries by education expenditure as a share of GDP (2022). Source: World Development Indicators (wdi.csv)."
+#| fig-width: 8
+#| fig-height: 5
+
+top10_edu <- wdi %>%
+filter(!is.na(education_expenditure_gdp_share)) %>%
+slice_max(order_by = education_expenditure_gdp_share, n = 10) %>%
+arrange(education_expenditure_gdp_share)
+
+ggplot(top10_edu,
+       aes(x = reorder(country, education_expenditure_gdp_share),
+           y = education_expenditure_gdp_share)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Education Expenditure (% of GDP), Top 10 Countries (2022)",
+     x = NULL,
+     y = "Education expenditure (% of GDP)")
+```
+
+@fig-edu-top10 highlights the top 10 countries by education expenditure as a share of GDP in 2022, with Kiribati leading at the highest percentage and Marshall Islands at the lowest among the top 10. The range shows significant variation, with Namibia and Sierra Leone also featuring prominently, suggesting that small or developing nations may prioritize education spending, possibly to address literacy or economic development needs.
+
+#### Scatter plot (Health spending share vs. Life expectancy)
+
+```{r}
+#| label: fig-health-life
+#| echo: false
+#| fig-cap: "Health expenditure (% of GDP) vs. life expectancy (years), 2022. Line shows linear fit. Source: World Development Indicators (wdi.csv)."
+#| fig-width: 7
+#| fig-height: 5
+
+ggplot(wdi,aes(x = health_expenditure_gdp_share,y = life_expectancy)) +
+  geom_point(na.rm = TRUE) +
+  geom_smooth(method = "lm", se = FALSE, na.rm = TRUE) +
+  labs(title = "Does Higher Health Spending Share Relate to Longevity?",
+       x = "Health expenditure (% of GDP)",
+       y = "Life expectancy (years)")
+
+```
+
+@fig-health-life indicates a weak positive association between health expenditure (% of GDP) and life expectancy in 2022, with countries allocating more to health tending to have higher average life expectancy. The relationship is noisy, as evidenced by outliers like the U.S, due to influences from absolute income, demographics, health-system efficiency, and lifestyle factors. However, with 197 missing values for health expenditure in this dataset, the fitted line should be interpreted cautiously, reflecting only partial data coverage.
+
+### Summary Table
+
+```{r}
+#| label: tbl-key-stats
+#| echo: false
+#| tbl-cap: "Key statistics for 2022 indicators. Source: World Development Indicators (wdi.csv)."
+
+key_stats <- data.frame(
+  Indicator = c("Education Expenditure (% GDP)", "Health Expenditure (% GDP)", "Life Expectancy (Years)"),
+  Mean = c(mean(wdi$education_expenditure_gdp_share, na.rm = TRUE),
+           mean(wdi$health_expenditure_gdp_share, na.rm = TRUE),
+           mean(wdi$life_expectancy, na.rm = TRUE)),
+  Median = c(median(wdi$education_expenditure_gdp_share, na.rm = TRUE),
+             median(wdi$health_expenditure_gdp_share, na.rm = TRUE),
+             median(wdi$life_expectancy, na.rm = TRUE)),
+  Min = c(min(wdi$education_expenditure_gdp_share, na.rm = TRUE),
+          min(wdi$health_expenditure_gdp_share, na.rm = TRUE),
+          min(wdi$life_expectancy, na.rm = TRUE)),
+  Max = c(max(wdi$education_expenditure_gdp_share, na.rm = TRUE),
+          max(wdi$health_expenditure_gdp_share, na.rm = TRUE),
+          max(wdi$life_expectancy, na.rm = TRUE)),
+  Missing = c(sum(is.na(wdi$education_expenditure_gdp_share)),
+              sum(is.na(wdi$health_expenditure_gdp_share)),
+              sum(is.na(wdi$life_expectancy)))
+)
+knitr::kable(key_stats, align = "c", digits = 2)
+```
+
+## Analysis
+
+The analysis of global development indicators reveals distinct patterns in education and health investments across countries. As shown in @fig-edu-top10, the top ten countries by education expenditure as a share of GDP in 2022 exhibit considerable variation, with Kiribati leading the list and several small or developing nations allocating relatively large proportions of GDP to education, suggesting a prioritization of human-capital development within these regions, potentially reflecting efforts to strengthen literacy and expand access to schooling despite limited fiscal capacity. However, since these figures represent spending shares rather than educational outcomes, the link between higher expenditure and improved quality remains uncertain.
+
+Empirical research supports the positive impact of educational investment on economic and social development. The World Bank reports that each additional year of schooling increases individual earnings by approximately 10 %, underscoring the long-term value of sustained investment in education [@worldbankblog]. Similarly, the Learning Policy Institute finds that greater educational funding, particularly for low-income populations, correlates with higher academic achievement and graduation rates [@lpi]. Nonetheless, as our data indicate, many countries spend below 4 % of GDP on education, highlighting a global investment gap. Moreover, even among high-spending nations, small economies may appear to allocate substantial shares of GDP despite having modest per-student budgets, complicating cross-country comparisons.
+
+The relationship between health expenditure and life expectancy, visualized in @fig-health-life, shows a weak positive association. Countries that allocate a greater proportion of GDP to health generally exhibit longer life expectancies, but the correlation remains moderate and influenced by outliers such as the United States (16.57 % of GDP, 77.43 years). The analysis is further limited by data coverage, with 197 missing values for health expenditure. These results suggest that while financial investment in health is important, system efficiency, preventive care, and equitable infrastructure play equally significant roles. The University of Michigan’s global health factsheet [@umich] reinforces this interpretation, reporting that in 2022, 1.5 billion people lacked access to basic sanitation, and that safe drinking water coverage remained below 30 % in low-income countries. Improvements in sanitation, water access, and preventive healthcare often yield greater longevity gains than increased spending alone.
+
+A statistical summary of these indicators is provided in @tbl-key-stats, which illustrates the wide range in global life expectancy (from 53.00 to 85.38 years) and underscores the limited data availability for health expenditure. This uneven coverage suggests that the current dataset may overrepresent higher-income countries with stronger reporting systems, potentially biasing the observed averages.
+
+Further analysis could compare these indicators across regions or income groups, as suggested by the data in @fig-health-life and @tbl-key-stats. For instance, the weak overall correlation between health spending and life expectancy may conceal stronger associations in developed economies with mature healthcare infrastructures and weaker or nonlinear patterns in developing contexts. Including additional metrics, such as per-capita spending, education quality indices, or healthcare accessibility measures, would allow for a more nuanced assessment of how national investments translate into human well-being.
+
+## Insights and Future Implications
+
+-   *The top ten education spenders are predominantly small or developing nations, indicating that percentage-of-GDP metrics can overstate investment intensity in economies with small GDP bases.*
+
+-   *The weak but positive relationship between health expenditure and life expectancy supports the view that financial inputs are necessary but insufficient; system design and efficiency are crucial determinants of outcomes.*
+
+-   *The high level of missing data, particularly for health expenditure, highlights an urgent need for improved international reporting standards to enable more representative global comparisons.*
+
+-   *The modest correlation between education expenditure and life expectancy likely reflects the influence of broader structural factors such as income, sanitation, and healthcare access.*
+
+Overall, we believe that these findings indicate that increasing spending alone is insufficient to achieve equitable development outcomes. Policymakers could focus more on enhancing the efficiency and quality of education and health investments. In education, this entails prioritizing early childhood and basic education, ensuring that funding translates into teacher training, learning materials, and equitable access. In the health sector, governments could strengthen preventive care, primary healthcare systems, and sanitation infrastructure, which have been shown to yield greater improvements in life expectancy than curative spending alone. Finally, global development agencies should invest in data transparency and consistency, particularly in low- and middle-income countries, to support evidence-based policymaking and monitor progress toward the sustainable goals.
+
+## References
+
+::: {#refs}
+:::
