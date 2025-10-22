@@ -6,6 +6,7 @@ format:
   html:
     toc: true
     number-sections: true
+    output-dir: docs
   pdf:
     toc: true
     number-sections: true

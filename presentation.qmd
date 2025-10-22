@@ -1,29 +1,31 @@
 ---
-title: "World Development Indicators (2022) Analysis"
+title: "World Development Indicators (2022) Report"
 author: "AC"
-format: revealjs
-editor: visual
-theme: moon
-transition: slide
+date: "October 6, 2025"
+format: 
+  revealjs:
+    theme: dracula
+    transition: fade
+    self-contained: true
+    zoom: 0.65
+execute:
+  echo: false
+  warning: false
 ---
-
-### World Development Indicators Analysis
-
-Course: QTM 350
-
-*Date: October 6, 2025*
 
 ## Intro
 
--   Analysis of 2022 World Development Indicators
+-   The World Development Indicators (WDI) dataset, compiled by the World Bank, provides a comprehensive collection of internationally comparable statistics about global development (World Bank, 2022).
 
--   Indicators: Education expenditure, health expenditure, life expectancy
+-   Highlight three core indicators:
+
+    -   Education expenditure (% of GDP)
+    -   Health expenditure (% of GDP)
+    -   Life expectancy (in years)
+
+-   Analyzes resource allocation and human capital development.
 
 ## Key Findings on Education Expenditure
-
--   Range: 0.3% to 16.58% of GDP
-
--   Top 10: Kiribati leads, followed by small/developing nations
 
 ```{r}
 #| label: fig-edu-top10-slide
@@ -54,26 +56,78 @@ ggplot(top10_edu,
        y = "Education expenditure (% of GDP)")
 ```
 
+Kiribati leads, suggesting small nations prioritize education.
+
 ## Health Expenditure vs. Life Expectancy
 
--   Range: Health expenditure 1.2% to 16.57% (U.S. outlier), Life expectancy 53.00 to 85.38 years.
+```{r}
+#| label: fig-health-life-slide
+#| echo: false
+#| fig-cap: "Health expenditure (% of GDP) vs. life expectancy (years), 2022. Line shows linear fit. Source: World Development Indicators (wdi.csv)."
+#| fig-width: 7
+#| fig-height: 5
+ggplot(wdi, aes(x = health_expenditure_gdp_share, y = life_expectancy)) +
+  geom_point(na.rm = TRUE) +
+  geom_smooth(method = "lm", se = FALSE, na.rm = TRUE) +
+  labs(title = "Does Higher Health Spending Share Relate to Longevity?",
+       x = "Health expenditure (% of GDP)",
+       y = "Life expectancy (years)")
+```
 
-    ```{r}
-    #| label: fig-health-life-slide
-    #| echo: false
-    #| fig-cap: "Health expenditure (% of GDP) vs. life expectancy (years), 2022. Line shows linear fit. Source: World Development Indicators (wdi.csv)."
-    #| fig-width: 7
-    #| fig-height: 5
-    ggplot(wdi, aes(x = health_expenditure_gdp_share, y = life_expectancy)) +
-      geom_point(na.rm = TRUE) +
-      geom_smooth(method = "lm", se = FALSE, na.rm = TRUE) +
-      labs(title = "Does Higher Health Spending Share Relate to Longevity?",
-           x = "Health expenditure (% of GDP)",
-           y = "Life expectancy (years)")
-    ```
+Weak positive association, limited by 197 missing values.
 
-## Summary
+## Summary Table
 
-Education spending varies widely, with developing nations leading; health spending shows a weak link to life expectancy.
+```{r}
+#| label: tbl-key-stats
+#| echo: false
+#| tbl-cap: "Key statistics for 2022 indicators. Source: World Development Indicators (wdi.csv)."
 
-Future: Analyze regional differences and health system efficiency.\
+key_stats <- data.frame(
+  Indicator = c("Education Expenditure (% GDP)", "Health Expenditure (% GDP)", "Life Expectancy (Years)"),
+  Mean = c(mean(wdi$education_expenditure_gdp_share, na.rm = TRUE),
+           mean(wdi$health_expenditure_gdp_share, na.rm = TRUE),
+           mean(wdi$life_expectancy, na.rm = TRUE)),
+  Median = c(median(wdi$education_expenditure_gdp_share, na.rm = TRUE),
+             median(wdi$health_expenditure_gdp_share, na.rm = TRUE),
+             median(wdi$life_expectancy, na.rm = TRUE)),
+  Min = c(min(wdi$education_expenditure_gdp_share, na.rm = TRUE),
+          min(wdi$health_expenditure_gdp_share, na.rm = TRUE),
+          min(wdi$life_expectancy, na.rm = TRUE)),
+  Max = c(max(wdi$education_expenditure_gdp_share, na.rm = TRUE),
+          max(wdi$health_expenditure_gdp_share, na.rm = TRUE),
+          max(wdi$life_expectancy, na.rm = TRUE)),
+  Missing = c(sum(is.na(wdi$education_expenditure_gdp_share)),
+              sum(is.na(wdi$health_expenditure_gdp_share)),
+              sum(is.na(wdi$life_expectancy)))
+)
+knitr::kable(key_stats, align = "c", digits = 2)
+```
+
+Wide ranges and missing data suggest reporting gaps.
+
+## Insights
+
+-   Top ten education spenders are predominantly small or developing nations, indicating that percentage-of-GDP metrics can overstate investment intensity.
+-   The weak but positive relationship between health expenditure and life expectancy supports the view that financial inputs are necessary but insufficient; system design and efficiency are crucial.
+-   The high level of missing data highlights an urgent need for improved international reporting standards.
+-   Modest correlation between education expenditure and life expectancy reflects broader structural factors.
+
+## Future Implications
+
+Policymakers could focus on:
+
+-   enhancing efficiency and quality of investments
+
+-   prioritizing early childhood education and preventive healthcare
+
+-   improving data transparency.
+
+## References
+
+-   Center for Sustainable Systems, University of Michigan. (2025). *Social development indicators factsheet*. https://css.umich.edu/publications/factsheets/sustainability-indicators/social-development-indicators-factsheet
+-   Harry A. Patrinos. (2023). *Investing in tomorrow*. https://blogs.worldbank.org/en/education/investing-tomorrow-how-educational-spending-translates-lifelong-returns
+-   Learning Policy Institute. (2024). *How money matters*. https://learningpolicyinstitute.org/product/how-money-matters-factsheet
+-   World Bank. (2022). *World development indicators*. https://databank.worldbank.org/source/world-development-indicators
+
+## Thank you!
