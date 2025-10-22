@@ -4,6 +4,7 @@ author: "AC"
 date: "October 6, 2025"
 format: 
   revealjs:
+    output-dir: docs
     theme: dracula
     transition: fade
     self-contained: true
