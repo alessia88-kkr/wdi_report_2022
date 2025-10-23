@@ -3,80 +3,64 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>World Development Indicators (2022)</title>
+  <title>World Development Indicators Project (2022)</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       margin: 0;
-      padding: 0;
-      background: #f9fafc;
-      color: #222;
+      background: #f8fafc;
+      color: #1f2937;
       text-align: center;
     }
-
     header {
-      background: #4f46e5; /* indigo */
+      background: linear-gradient(90deg, #6366f1, #06b6d4);
       color: white;
-      padding: 2.5rem 1rem 2rem;
+      padding: 3rem 1rem 2rem;
     }
-
     h1 {
       font-size: 2.2rem;
       margin: 0;
     }
-
-    main {
-      margin-top: 2rem;
+    p {
+      margin-top: 0.4rem;
+      color: #e0e7ff;
     }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    li {
-      margin: 1rem 0;
-    }
-
     a {
-      color: #4f46e5;
+      display: inline-block;
+      margin: 1rem;
+      padding: 0.7rem 1.4rem;
+      background: white;
+      color: #1f2937;
+      border-radius: 6px;
       text-decoration: none;
       font-weight: 600;
-      border: 2px solid #4f46e5;
-      padding: 0.6rem 1.2rem;
-      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       transition: all 0.2s ease;
     }
-
     a:hover {
-      background: #4f46e5;
-      color: white;
+      transform: translateY(-2px);
+      background: #f1f5f9;
     }
-
     footer {
-      margin-top: 3rem;
+      margin-top: 2rem;
       font-size: 0.9rem;
-      color: #666;
-      padding-bottom: 2rem;
+      color: #6b7280;
+      padding-bottom: 1.5rem;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>World Development Indicators (2022)</h1>
+    <h1>World Development Indicators Project (2022)</h1>
     <p>by AC</p>
   </header>
 
   <main>
-    <ul>
-      <li><a href="wdi_report.html">HTML Report</a></li>
-      <li><a href="wdi_report.pdf">PDF Report</a></li>
-      <li><a href="presentation.html">Slides (Reveal.js)</a></li>
-    </ul>
+    <a href="wdi_report.html">HTML Report</a>
+    <a href="wdi_report.pdf">PDF Report</a>
+    <a href="presentation.html">Presentation Slides</a>
   </main>
 
-  <footer>
-    <p>Built with Quarto · Hosted on GitHub Pages</p>
-  </footer>
+  <footer>Built with Quarto · Hosted on GitHub Pages</footer>
 </body>
 </html>
